@@ -15,23 +15,23 @@ def is_desimal_form(val: str) -> bool:
     return bool(re.fullmatch(r"\-?(\d+\.\d+|\d+)", val))
 
 
-def valid_decimal_10_4(val: str, min_num=-9999.9999, max_num=9999.9999) -> bool:
+def is_valid_decimal_10_4(val: str, min_num=-9999.9999, max_num=9999.9999) -> bool:
     return is_desimal_form(val) and min_num < float(val) < max_num
 
 
-def valid_decimal_12_4(val: str) -> bool:
-    return valid_decimal_10_4(val, min_num=-99999.9999, max_num=99999.9999)
+def is_valid_decimal_12_4(val: str) -> bool:
+    return is_valid_decimal_10_4(val, min_num=-99999.9999, max_num=99999.9999)
 
 
-def valid_decimal_13_4(val: str) -> bool:
-    return valid_decimal_10_4(val, min_num=-999999.9999, max_num=999999.9999)
+def is_valid_decimal_13_4(val: str) -> bool:
+    return is_valid_decimal_10_4(val, min_num=-999999.9999, max_num=999999.9999)
 
 
-def valid_decimal_4_2(val: str) -> bool:
-    return valid_decimal_10_4(val, min_num=-99.99, max_num=99.99)
+def is_valid_decimal_4_2(val: str) -> bool:
+    return is_valid_decimal_10_4(val, min_num=-99.99, max_num=99.99)
 
 
-def valid_index(val: str) -> bool:
+def is_valid_index(val: str) -> bool:
     return bool(re.fullmatch(r"[0-9a-zA_Z]{1,40}", val))
 
 
@@ -53,7 +53,7 @@ class PriceRunner:
         return self.csv_file.as_posix().replace(self.csv_file.suffix, '.json')
 
     @staticmethod
-    def _valid_name(val: str) -> bool:
+    def _is_valid_name(val: str) -> bool:
         return len(val) <= 200
 
     @staticmethod
@@ -64,7 +64,7 @@ class PriceRunner:
         return []
 
     @staticmethod
-    def _valid_enum(val: str) -> bool:
+    def _is_valid_enum(val: str) -> bool:
         try:
             return int(val) in {1, 10, 11, 12, 20, 21, 30, 31}
         except ValueError:
@@ -77,12 +77,12 @@ class PriceRunner:
     def _get_field_validators(self) -> Dict:
 
         return {
-            "name": self._valid_name,
-            "price": valid_decimal_10_4,
-            "price_ext_id": valid_index,
-            "vat": valid_decimal_4_2,
-            "unit_type": self._valid_enum,
-            "unit_ratio": valid_decimal_10_4
+            "name": self._is_valid_name,
+            "price": is_valid_decimal_10_4,
+            "price_ext_id": is_valid_index,
+            "vat": is_valid_decimal_4_2,
+            "unit_type": self._is_valid_enum,
+            "unit_ratio": is_valid_decimal_10_4
         }
 
     def _rows_filter(self, array) -> List[Dict]:
@@ -91,9 +91,10 @@ class PriceRunner:
         items = []
 
         for ind, row in enumerate(array):
+            ind += 1
 
             if len(row) != len(self.fields):
-                logger.warning(f"Строка {ind}: Неверное количество полей: {row}")
+                logger.warning(f" cтрока {ind}: Неверное количество полей: {row}")
                 continue
 
             try:
@@ -174,32 +175,32 @@ class InventoryRunner(PriceRunner):
             return ""
 
     @staticmethod
-    def _valid_matr(val: str) -> bool:
+    def _is_valid_matr(val: str) -> bool:
         return val in {'true', 'false', '0', '1'}
 
     @staticmethod
-    def _valid_insign_dec(val: str) -> bool:
+    def _is_valid_insign_dec(val: str) -> bool:
         return is_desimal_form(val) and 0 <= float(val) < 999999.9999
 
     @staticmethod
-    def _valid_smallint(val: str) -> bool:
+    def _is_valid_smallint(val: str) -> bool:
         return re.fullmatch(r"[0-9]+", val) and 0 < int(val) < 32767
 
     @property
     def _get_field_validators(self) -> Dict:
         return {
-            "store_ext_id": valid_index,
-            "in_matrix": self._valid_matr,
-            "price_ext_id": valid_index,
-            "qty": valid_decimal_13_4,
-            "sell_price": valid_decimal_12_4,
-            "prime_cost": valid_decimal_12_4,
-            "min_stock_level": self._valid_insign_dec,
-            "stock_in_days": self._valid_smallint,
-            "in_transit": valid_decimal_10_4
+            "store_ext_id": is_valid_index,
+            "in_matrix": self._is_valid_matr,
+            "price_ext_id": is_valid_index,
+            "qty": is_valid_decimal_13_4,
+            "sell_price": is_valid_decimal_12_4,
+            "prime_cost": is_valid_decimal_12_4,
+            "min_stock_level": self._is_valid_insign_dec,
+            "stock_in_days": self._is_valid_smallint,
+            "in_transit": is_valid_decimal_10_4
         }
 
-    def _rebuild_fields(self, val: str):
+    def _rebuild_fields(self, val: str) -> str:
         return self._valid_data(val)
 
 
