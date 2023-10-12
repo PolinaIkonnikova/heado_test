@@ -20,7 +20,7 @@ python3 -m handler price price.csv
 ```commandline
 python3 -m handler inventory inventory2.csv
 ```
-Если в файле csv намеренно отсутствуют столбцы обрабатываемой модели или нужно убрать столбцы из обработки, нужно воспользоваться флагом --ignore
+Если в файле csv отсутствуют столбцы обрабатываемой модели, нужно воспользоваться флагом --ignore
 ```commandline
 python3 -m handler inventory inventory1.csv --ignore stock_in_days,in_transit
 ```
